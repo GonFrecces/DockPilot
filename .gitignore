@@ -87,6 +87,14 @@ web_modules/
 .next
 out
 
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
 # Nuxt.js build / generate output
 .nuxt
 dist
@@ -139,3 +147,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Misc
+.DS_Store
