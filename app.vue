@@ -1,6 +1,13 @@
+<script setup lang="ts">
+  useHead({
+    titleTemplate: 'Dock - Pilot',
+  })
+  const layout = 'default'
+</script>
 <template>
-  <div>
-    <NuxtRouteAnnouncer />
-    <NuxtWelcome />
-  </div>
+  <UApp>
+    <NuxtLayout :name="layout">
+      <NuxtPage />
+    </NuxtLayout>
+  </UApp>
 </template>
