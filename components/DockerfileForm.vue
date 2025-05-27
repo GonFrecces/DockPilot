@@ -90,15 +90,16 @@ const selectedInstructions = ref<CheckboxGroupValue[]>([])
 
 </script>
 <template>
-    <UForm :state="state" class="flex flex-col gap-4">
-        <USelectMenu v-model="selectedLanguage" :items="languageOptions" placeholder="Selecciona Lenguaje"
-            class="w-48" />
-        <USelectMenu v-model="selectedFramework" :items="frameworkOptions" placeholder="Selecciona Framework"
-            :disabled="!selectedLanguage" class="w-48 hover:cursor-pointer" />
-        <div>
-            <UCheckboxGroup v-model="selectedInstructions" :items="instructions" legend="Instrucciones" variant="card" orientation="vertical" class="max-h-64 overflow-y-auto"/>
-        </div>
-        <UButton label="Generar" type="submit" variant="solid" class="self-end hover:cursor-pointer hover:text-amber-50" @click="toggle"/>
-        {{ mostrar ? 'Desactivar' : 'Activar' }}
-    </UForm>
+    <div class="max-h-screen">
+        <UForm :state="state" class="flex flex-col gap-4">
+            <USelectMenu v-model="selectedLanguage" :items="languageOptions" placeholder="Selecciona Lenguaje"
+                class="w-48" />
+            <USelectMenu v-model="selectedFramework" :items="frameworkOptions" placeholder="Selecciona Framework"
+                :disabled="!selectedLanguage" class="w-48 hover:cursor-pointer" />
+            <div>
+                <UCheckboxGroup v-model="selectedInstructions" :items="instructions" legend="Instrucciones" variant="card" orientation="vertical" class="max-h-64 overflow-y-auto"/>
+            </div>
+            <UButton label="Generar" type="submit" variant="solid" class="self-end hover:cursor-pointer hover:text-amber-50" @click="toggle"/>
+        </UForm>
+    </div>
 </template>
