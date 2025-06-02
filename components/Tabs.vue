@@ -47,7 +47,7 @@ const items = [
 </script>
 
 <template>
-    <UTabs :items="items" variant="link" class="gap-4 w-full" :ui="{ trigger: 'grow' }" :mostrar="props.mostrar">
+    <UTabs :items="items" variant="link" class="gap-2 sm:gap-3 lg:gap-4 w-full" :ui="{ trigger: 'grow text-xs sm:text-sm lg:text-base px-2 sm:px-3 lg:px-4', list: 'gap-1 sm:gap-2 p-1' }" :mostrar="props.mostrar">
         <template #github="{ item }">
             <p class="text-muted mb-4">
                 {{ item.description }}
@@ -59,7 +59,7 @@ const items = [
                 {{ item.description }}
             </p>
 
-            <DockerfileForm :mostrar="mostrar" @update-mostrar="resend" />
+            <DockerfileForm :mostrar="mostrar ?? false" @update-mostrar="resend" />
         </template>
 
         <template #gitlab="{ item }">
@@ -67,7 +67,7 @@ const items = [
                 {{ item.description }}
             </p>
 
-            <DockerfileForm :mostrar="mostrar" @update-mostrar="resend" />
+            <DockerfileForm :mostrar="mostrar ?? false" @update-mostrar="resend" />
         </template>
 
         <template #jenkins="{ item }">
@@ -75,7 +75,7 @@ const items = [
                 {{ item.description }}
             </p>
 
-            <DockerfileForm :mostrar="mostrar" @update-mostrar="resend" />
+            <DockerfileForm :mostrar="mostrar ?? false" @update-mostrar="resend" />
         </template>
 
         <template #railway="{ item }">
@@ -83,7 +83,7 @@ const items = [
                 {{ item.description }}
             </p>
 
-            <DockerfileForm :mostrar="mostrar" @update-mostrar="resend" />
+            <DockerfileForm :mostrar="mostrar ?? false" @update-mostrar="resend" />
         </template>
     </UTabs>
 </template>

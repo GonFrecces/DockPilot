@@ -1,13 +1,12 @@
-<script lang="ts" setup>
-import type { container } from '#build/ui';
-import type { CheckboxGroupItem, CheckboxGroupValue } from '@nuxt/ui'
-import hljs from 'highlight.js'
+<template>
+    <div class="h-full max-h-[500px] overflow-hidden flex flex-col">
+        <div class="flex flex-col h-full">
+            <pre><code ref="codeBlock" class="overflow-y-auto flex flex-col h-64 sm:h-80 lg:h-96 xl:h-[465px]" v-html="highlightedCode"></code></pre>   
+        </div>
+    </div>
+</template>
 
-const props = defineProps<Props & {
-    mostrar: boolean,
-    defaultProject?: DockerConfig['projectType']
-}>()
-
+<script setup lang="ts">
 interface DockerConfig {
     projectType: 'node' | 'typescript' | 'python' | 'nginx' | 'custom'
     port: number
@@ -17,20 +16,20 @@ interface DockerConfig {
     multiStage: boolean
 }
 
+// Props
 interface Props {
-    mostrar: boolean
+    height?: string
     defaultProject?: DockerConfig['projectType']
 }
 
-const emit = defineEmits(['update-mostrar'])
-
-function toggle() {
-    emit('update-mostrar', !props.mostrar)
-}
+const props = withDefaults(defineProps<Props>(), {
+    height: 'auto',
+    defaultProject: 'typescript'
+})
 
 // Estado reactivo
 const config = ref<DockerConfig>({
-    projectType: 'typescript',
+    projectType: props.defaultProject,
     port: 3000,
     baseImage: 'node:18-alpine',
     workdir: '/app',
@@ -38,13 +37,8 @@ const config = ref<DockerConfig>({
     multiStage: false
 })
 
-
 const dockerfileCode = ref<string>('')
-const copySuccess = ref<boolean>(false)
 const codeBlock = ref<HTMLElement | null>(null)
-
-
-const projectName = computed(() => `mi-${config.value.projectType}-app`)
 
 const highlightedCode = computed(() => {
     return dockerfileCode.value
@@ -53,6 +47,12 @@ const highlightedCode = computed(() => {
         .replace(/>/g, '&gt;')
 })
 
+// Acceso a highlight.js
+// Importa highlight.js directamente para evitar problemas de tipado
+// Si usas highlight.js como dependencia, asegúrate de instalarlo: npm install highlight.js
+import hljs from 'highlight.js'
+
+// Templates de Dockerfile
 const templates = {
     typescript: (): string => {
         const baseTemplate = `${config.value.multiStage ? '# Build stage' : '# Imagen base para TypeScript/Node.js'}
@@ -250,6 +250,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \\
 CMD ["echo", "Configurar comando de inicio personalizado"]`
 }
 
+// Métodos
 const generateDockerfile = (): void => {
     dockerfileCode.value = templates[config.value.projectType]()
     nextTick(() => {
@@ -262,7 +263,8 @@ const generateDockerfile = (): void => {
     }
 }
 
-const copyToClipboard = async (): Promise<void> => {
+
+/* const copyToClipboard = async (): Promise<void> => {
     try {
         await navigator.clipboard.writeText(dockerfileCode.value)
         copySuccess.value = true
@@ -283,7 +285,7 @@ const copyToClipboard = async (): Promise<void> => {
             copySuccess.value = false
         }, 2000)
     }
-}
+} */
 
 const downloadDockerfile = (): void => {
     const blob = new Blob([dockerfileCode.value], { type: 'text/plain' })
@@ -299,9 +301,9 @@ const downloadDockerfile = (): void => {
 
 const resetToDefaults = (): void => {
     config.value = {
-        projectType: 'node',
+        projectType: props.defaultProject,
         port: 3000,
-        baseImage: getDefaultBaseImage('node'),
+        baseImage: getDefaultBaseImage(props.defaultProject),
         workdir: '/app',
         includeHealthcheck: true,
         multiStage: false
@@ -330,142 +332,4 @@ watch(() => config.value.projectType, (newType) => {
 onMounted(() => {
     generateDockerfile()
 })
-
-const techOptions = ref<{ label: string, id: string }[]>([
-    {
-        label: "TypeScript/Node.js",
-        id: "typescript"
-    },
-    {
-        label: "Node.js",
-        id: "node"
-    },
-    {
-        label: "Python",
-        id: "python"
-    },
-    {
-        label: "Nginx estático",
-        id: "nginx"
-    },
-    {
-        label: "Personalizado",
-        id: "custom"
-    }
-])
-const value = ref<string>('node')
-
-const instructions = ref<CheckboxGroupItem[]>([
-    { id: 'add', label: 'ADD', description: 'Add local or remote files and directories.' },
-    { id: 'arg', label: 'ARG', description: 'Use build-time variables.' },
-    { id: 'cmd', label: 'CMD', description: 'Specify default commands.' },
-    { id: 'copy', label: 'COPY', description: 'Copy files and directories.' },
-    { id: 'entrypoint', label: 'ENTRYPOINT', description: 'Specify default executable.' },
-    { id: 'env', label: 'ENV', description: 'Set environment variables.' },
-    { id: 'expose', label: 'EXPOSE', description: 'Describe which ports your application is listening on.' },
-    { id: 'from', label: 'FROM', description: 'Create a new build stage from a base image.' },
-    { id: 'healthcheck', label: 'HEALTHCHECK', description: 'Check a container\'s health on startup.' },
-    { id: 'label', label: 'LABEL', description: 'Add metadata to an image.' },
-    { id: 'maintainer', label: 'MAINTAINER', description: 'Specify the author of an image.' },
-    { id: 'onbuild', label: 'ONBUILD', description: 'Specify instructions for when the image is used in a build.' },
-    { id: 'run', label: 'RUN', description: 'Execute build commands.' },
-    { id: 'shell', label: 'SHELL', description: 'Set the default shell of an image.' },
-    { id: 'stopsignal', label: 'STOPSIGNAL', description: 'Specify the system call signal for exiting a container.' },
-    { id: 'user', label: 'USER', description: 'Set user and group ID.' },
-    { id: 'volume', label: 'VOLUME', description: 'Create volume mounts.' },
-    { id: 'workdir', label: 'WORKDIR', description: 'Set the working directory.' },
-    { id: 'onbuild', label: 'ONBUILD', description: 'Specify instructions for when the image is used in a build.' },
-    { id: 'run', label: 'RUN', description: 'Execute build commands.' },
-    { id: 'shell', label: 'SHELL', description: 'Set the default shell of an image.' },
-    { id: 'stopsignal', label: 'STOPSIGNAL', description: 'Specify the system call signal for exiting a container.' },
-    { id: 'user', label: 'USER', description: 'Set user and group ID.' },
-    { id: 'volume', label: 'VOLUME', description: 'Create volume mounts.' },
-    { id: 'workdir', label: 'WORKDIR', description: 'Set the working directory.' }
-])
-const options = [
-    {
-        label: 'Basic',
-        description: 'Basic configuration.',
-        icon: 'icon-park-outline:config',
-        slot: 'basic' as const
-    },
-    {
-        label: 'Advanced',
-        description: 'Advanced configuration options.',
-        icon: 'icon-park-outline:setting-config',
-        slot: 'advanced' as const
-    }
-]
-// Array para almacenar las instrucciones seleccionadas
-const selectedInstructions = ref<CheckboxGroupValue[]>([])
-
 </script>
-<template>
-    <div class="w-full max-w-full overflow-hidden">
-        <UTabs :items="options" variant="pill" color="primary" class="w-full" :ui="{ trigger: 'grow text-xs sm:text-sm', list: 'p-1 gap-1 sm:gap-2' }"
-            :mostrar="props.mostrar">
-            <template #basic="{ item }">
-                <p class="text-xs sm:text-sm text-muted mb-2 sm:mb-4 px-1 sm:px-0">
-                    {{ item.description }}
-                </p>
-                <UForm :state="config" class="flex flex-col gap-3 sm:gap-4 lg:gap-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
-
-                        <UFormField label="Proyecto" required color="secondary">
-                            <USelectMenu 
-                                v-model="value" 
-                                :items="techOptions" 
-                                value-key="id"
-                                placeholder="Seleccione tipo de proyecto" 
-                                size="xl"
-                                class="w-full hover:cursor-pointer"
-                            />
-                        </UFormField>
-                        <UFormField  label="Imagen base" required color="secondary">
-                            <UInput class="w-full hover:cursor-pointer" v-model="config.baseImage" size="xl" placeholder="node:18-alpine" :ui="{ base: 'text-xs sm:text-sm' }" />
-                        </UFormField>
-
-                        <UFormField  label="Puerto" placeholder="3000" color="secondary">
-                            <UInput class="w-full hover:cursor-pointer" v-model="config.port" size="xl" placeholder="3000" :ui="{ base: 'text-xs sm:text-sm' }" />
-                        </UFormField>
-
-                        <UFormField label="Directorio de trabajo" color="secondary">
-                            <UInput class="w-full hover:cursor-pointer" v-model="config.workdir" size="xl" placeholder="/app/" :ui="{ base: 'text-xs sm:text-sm' }" />
-                        </UFormField>
-
-                        <UFormField color="secondary">
-                            <UCheckbox v-model="config.includeHealthcheck" size="xl" class="w-full hover:cursor-pointer" label="Incluir Healthcheck" />
-                        </UFormField>
-
-                        <UFormField color="secondary">
-                            <UCheckbox v-model="config.multiStage" size="xl" class="w-full hover:cursor-pointer" label="Multi-stage build" />
-                        </UFormField>
-
-                    </div>
-                    <div class="grid-cols-2 grid gap-4 w-full">
-
-                    </div>
-                    <div class="flex justify-end">
-                        <UButton label="Generar" type="submit" variant="solid"
-                            class="self-end hover:cursor-pointer hover:text-amber-50" @click="toggle" />
-                    </div>
-                </UForm>
-
-            </template>
-
-            <template #advanced="{ item }">
-                <p class="text-muted mb-4">
-                    {{ item.description }}
-                </p>
-                <UForm :state="config" class="flex flex-col gap-4">
-                    <div>
-                        <UCheckboxGroup v-model="selectedInstructions" :items="instructions" legend="Instrucciones"
-                            variant="card" orientation="vertical" class="max-h-64 overflow-y-auto" />
-                    </div>
-                    <UButton label="Generar" type="submit" variant="solid"
-                        class="self-end hover:cursor-pointer hover:text-amber-50" @click="toggle" />
-                </UForm>
-            </template>
-        </UTabs>
-    </div>
-</template>
