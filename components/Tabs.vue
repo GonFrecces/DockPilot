@@ -35,12 +35,6 @@ const items = [
         description: 'Manage your Jenkinsfile settings here.',
         icon: 'file-icons:jenkins',
         slot: 'jenkins' as const
-    },
-    {
-        label: 'Railway/Render',
-        description: 'Manage your Railway/Render settings here.',
-        icon: 'i-lucide-server',
-        slot: 'railway' as const
     }
 ] satisfies TabsItem[]
 
@@ -71,14 +65,6 @@ const items = [
         </template>
 
         <template #jenkins="{ item }">
-            <p class="text-muted mb-4">
-                {{ item.description }}
-            </p>
-
-            <DockerfileForm :mostrar="mostrar ?? false" @update-mostrar="resend" />
-        </template>
-
-        <template #railway="{ item }">
             <p class="text-muted mb-4">
                 {{ item.description }}
             </p>

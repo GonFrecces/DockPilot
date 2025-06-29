@@ -1,7 +1,7 @@
 <template>
     <div class="h-full max-h-[500px] overflow-hidden flex flex-col">
         <div class="flex flex-col h-full">
-            <pre><code ref="codeBlock" class="overflow-y-auto flex flex-col h-64 sm:h-80 lg:h-96 xl:h-[465px]" v-html="highlightedCode"></code></pre>   
+            <pre><code ref="codeBlock" class="overflow-y-auto flex flex-col h-96 sm:h-96 lg:h-96 xl:h-[465px]" v-html="highlightedCode"></code></pre>   
         </div>
     </div>
 </template>
